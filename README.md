@@ -8,4 +8,5 @@ Command-line camera changing utility for iRacing
 
 ### To use:
  - Run `pip install pyirsdk` to install the module
+ - Run the iRacing program
  - Run `python3 irCamera.py` to start the script
