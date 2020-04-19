@@ -9,7 +9,7 @@ try:
     #ir.startup(test_file='Scripts\LoneQualData.bin')
     #ir.startup(test_file='Scripts\RaceData.bin')
     #if (ir.startup(test_file='Scripts\RaceData.bin')) == False:
-    if (ir.startup()) == False: # This can occur if the sim is not running or fully loaded
+    while not ir.startup(): # This can occur if the sim is not running or fully loaded
         print('iRacing is not running or not fully loaded, sleeping 30 seconds. . . ')
         time.sleep(30)
     else:
@@ -36,10 +36,10 @@ def button(button):
     elif button == "Change Driver":
         groupNum = ir['CamGroupNumber']
         drivers_raw = ir['DriverInfo']['Drivers']
-        drivers_list = []
+        drivers_list = {}
         for i in range(0, len(drivers_raw)):
             if (drivers_raw[i]['IsSpectator'] == 0):
-                drivers_list.append(drivers_raw[i]['UserName'])
+                drivers_list[drivers_raw[i]['UserName']] = drivers_raw[i]['CarNumber']
         changeDriver(groupNum,drivers_list)
     elif button == "Change Position":
         groupNum = ir['CamGroupNumber']
@@ -58,7 +58,9 @@ def changeCamera(activeNumber,camera_list): #Change active camera, driver remain
 
 def changeDriver(groupNum,drivers_list): #Change active driver, camera remains the same
     choice  = app.getOptionBox("Change Driver") # Pulls choice from the "Change Driver" menu
-    newDriver = drivers_list.index(choice)
+    for name, number in drivers_list.items():  # for name, number in drivers_list
+        if name == choice:
+            newDriver = number
     #print("ir.cam_switch_num(",newDriver,",",groupNum,", 0)")   #Debug
     ir.cam_switch_num(newDriver, groupNum, 1)
     app.setLabel("lbl-actDrv", choice)  # Updates Active driver camera label
