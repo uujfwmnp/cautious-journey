@@ -63,7 +63,15 @@ def changeDriver(groupNum,drivers_list): #Change active driver, camera remains t
             newDriver = number
     #print("ir.cam_switch_num(",newDriver,",",groupNum,", 0)")   #Debug
     ir.cam_switch_num(newDriver, groupNum, 1)
-    app.setLabel("lbl-actDrv", choice)  # Updates Active driver camera label
+    time.sleep(0.1)
+    activeSession = ir['SessionNum']
+    CamCarIdx = ir['CamCarIdx']
+    CarIdx = ir['DriverInfo']['Drivers'][CamCarIdx]['CarIdx']
+    for i in range(0, len(ir['SessionInfo']['Sessions'][activeSession]['ResultsPositions'])):
+        if(ir['SessionInfo']['Sessions'][activeSession]['ResultsPositions'][i]['CarIdx'] == CarIdx):
+            position = ir['SessionInfo']['Sessions'][activeSession]['ResultsPositions'][i]['Position']
+    app.setLabel("lbl-actDrv", choice)    # Updates Active driver camera label
+    app.setLabel("lbl-actPos", position)  # Updates Position camera label
 
 def changePosition(groupNum,activeSession,position_list): #Change active position
     choice  = app.getOptionBox("Change Position") # Pulls choice from the "Change Position" menu
@@ -71,7 +79,11 @@ def changePosition(groupNum,activeSession,position_list): #Change active positio
     newPosition = int(choice)
     #print("ir.cam_switch_pos(",newPosition,",",newCamera,",0)")   #Debug
     ir.cam_switch_pos(newPosition,newCamera,0)
-    app.setLabel("lbl-actPos", choice)  # Updates Position camera label
+    time.sleep(0.1)
+    CamCarIdx = ir['CamCarIdx']
+    activeDriver = ir['DriverInfo']['Drivers'][CamCarIdx]['UserName']
+    app.setLabel("lbl-actDrv", activeDriver)    # Updates Active driver camera label
+    app.setLabel("lbl-actPos", choice)          # Updates Position camera label
 
 def camera_driver_position_list():
     # Change Camera: Angle
