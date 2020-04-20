@@ -31,7 +31,7 @@ def button(button):
         activeNumber = ir['DriverInfo']['Drivers'][CamCarIdx]['CarNumberRaw']
         camera_list = []    # Array of TV cameras
         for i in range(0, len(ir['CameraInfo']['Groups'])):
-            camera_list.append(ir['CameraInfo']['Groups'][i]['GroupName'])    
+            camera_list.append(ir['CameraInfo']['Groups'][i]['GroupName'])
         changeCamera(activeNumber,camera_list)  # Call the changeCamera function
     elif button == "Change Driver":
         groupNum = ir['CamGroupNumber']
