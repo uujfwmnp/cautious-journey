@@ -74,7 +74,7 @@ def changeDriver(groupNum,drivers_list): #Change active driver, camera remains t
         for i in range(0, len(ir['SessionInfo']['Sessions'][activeSession]['ResultsPositions'])):
             if(ir['SessionInfo']['Sessions'][activeSession]['ResultsPositions'][i]['CarIdx'] == CarIdx):
                 position = ir['SessionInfo']['Sessions'][activeSession]['ResultsPositions'][i]['Position']
-                app.setLabel("lbl-actPos", position)  # Updates Position camera label
+        app.setLabel("lbl-actPos", position)  # Updates Position camera label
     app.setLabel("lbl-actDrv", choice)  # Updates Active driver camera label
 
 def changePosition(groupNum,activeSession,position_list): #Change active position
