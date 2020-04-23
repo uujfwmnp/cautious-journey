@@ -28,6 +28,7 @@ except KeyboardInterrupt:
 
 def button(button):
     if button == "Change Camera":
+        CamCarIdx = ir['CamCarIdx']
         activeNumber = ir['DriverInfo']['Drivers'][CamCarIdx]['CarNumberRaw']
         camera_list = []    # Array of TV cameras
         for i in range(0, len(ir['CameraInfo']['Groups'])):
@@ -67,11 +68,14 @@ def changeDriver(groupNum,drivers_list): #Change active driver, camera remains t
     activeSession = ir['SessionNum']
     CamCarIdx = ir['CamCarIdx']
     CarIdx = ir['DriverInfo']['Drivers'][CamCarIdx]['CarIdx']
-    for i in range(0, len(ir['SessionInfo']['Sessions'][activeSession]['ResultsPositions'])):
-        if(ir['SessionInfo']['Sessions'][activeSession]['ResultsPositions'][i]['CarIdx'] == CarIdx):
-            position = ir['SessionInfo']['Sessions'][activeSession]['ResultsPositions'][i]['Position']
-    app.setLabel("lbl-actDrv", choice)    # Updates Active driver camera label
-    app.setLabel("lbl-actPos", position)  # Updates Position camera label
+    if (ir['SessionInfo']['Sessions'][activeSession]['ResultsPositions'] == None):
+        app.setLabel("lbl-actPos", ["- No Positions At This Time -"])  # Updates Position camera label
+    else:
+        for i in range(0, len(ir['SessionInfo']['Sessions'][activeSession]['ResultsPositions'])):
+            if(ir['SessionInfo']['Sessions'][activeSession]['ResultsPositions'][i]['CarIdx'] == CarIdx):
+                position = ir['SessionInfo']['Sessions'][activeSession]['ResultsPositions'][i]['Position']
+                app.setLabel("lbl-actPos", position)  # Updates Position camera label
+    app.setLabel("lbl-actDrv", choice)  # Updates Active driver camera label
 
 def changePosition(groupNum,activeSession,position_list): #Change active position
     choice  = app.getOptionBox("Change Position") # Pulls choice from the "Change Position" menu
