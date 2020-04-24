@@ -34,7 +34,7 @@ def button(button):
     elif button == "Change Position":
         changePosition()
 
-def changeCamera(): #Change active camera, driver remains the same
+def changeCamera(): # Change active camera, driver remains the same
     CamCarIdx = ir['CamCarIdx']
     activeNumber = ir['DriverInfo']['Drivers'][CamCarIdx]['CarNumberRaw']
     camera_list = []    # Array of TV cameras
@@ -46,15 +46,14 @@ def changeCamera(): #Change active camera, driver remains the same
     ir.cam_switch_num(activeNumber, newCamera, 1)
     app.setLabel("lbl-actCam", choice)  # Updates Active TV camera label
 
-def changeDriver(): #Change active driver, camera remains the same
+def changeDriver(): # Change active driver, camera remains the same
     groupNum = ir['CamGroupNumber']
     activeSession = ir['SessionNum']
-
     drivers_raw = ir['DriverInfo']['Drivers']
     drivers_list = {}
     for i in range(0, len(drivers_raw)):
         if (drivers_raw[i]['IsSpectator'] == 0):
-            drivers_list[drivers_raw[i]['UserName']] = drivers_raw[i]['CarNumber']
+            drivers_list[drivers_raw[i]['UserName']] = drivers_raw[i]['CarNumber']  # Example: {'foo':1, 'bar':2, 'foobar':3}
     choice = app.getOptionBox("Change Driver") # Pulls choice from the "Change Driver" menu
     for name, number in drivers_list.items():  # for name, number in drivers_list
         if name == choice:
@@ -73,12 +72,9 @@ def changeDriver(): #Change active driver, camera remains the same
         app.setLabel("lbl-actPos", position)  # Updates Position camera label
     app.setLabel("lbl-actDrv", choice)  # Updates Active driver camera label
 
-def changePosition(): #Change active position
+def changePosition(): # Change active position
     groupNum = ir['CamGroupNumber']
     activeSession = ir['SessionNum']
-    position_list = []
-    for i in range(0, len(ir['SessionInfo']['Sessions'][activeSession]['ResultsPositions'])):
-        position_list.append(ir['SessionInfo']['Sessions'][activeSession]['ResultsPositions'][i]['Position'])
     choice  = app.getOptionBox("Change Position") # Pulls choice from the "Change Position" menu
     newCamera = int(groupNum)
     newPosition = int(choice)
@@ -90,7 +86,7 @@ def changePosition(): #Change active position
     app.setLabel("lbl-actDrv", activeDriver)    # Updates Active driver camera label
     app.setLabel("lbl-actPos", choice)          # Updates Position camera label
 
-def camera_driver_position_list():
+def first_load_list():
     # Change Camera: Angle
     camera_list = []    # Array of TV cameras
     for i in range(0, len(ir['CameraInfo']['Groups'])):
@@ -104,11 +100,14 @@ def camera_driver_position_list():
     # Change Camera: Position
     activeSession = ir['SessionNum']
     position_list = []
-    for i in range(0, len(ir['SessionInfo']['Sessions'][activeSession]['ResultsPositions'])):
-        position_list.append(ir['SessionInfo']['Sessions'][activeSession]['ResultsPositions'][i]['Position'])
+    if (ir['SessionInfo']['Sessions'][activeSession]['ResultsPositions'] == None):
+        position_list.append("- No Positions At This Time -")
+    else:
+        for i in range(0, len(ir['SessionInfo']['Sessions'][activeSession]['ResultsPositions'])):
+            position_list.append(ir['SessionInfo']['Sessions'][activeSession]['ResultsPositions'][i]['Position'])
     return camera_list,drivers_list,position_list
 
-camera_list,drivers_list,position_list = camera_driver_position_list() # Get the initial first-load variables
+camera_list,drivers_list,position_list = first_load_list() # Get the initial first-load variables
 
 app = gui("Camera Director")    #Window name
 app.setBg("white")              #Window color
