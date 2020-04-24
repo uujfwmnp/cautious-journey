@@ -28,44 +28,40 @@ except KeyboardInterrupt:
 
 def button(button):
     if button == "Change Camera":
-        CamCarIdx = ir['CamCarIdx']
-        activeNumber = ir['DriverInfo']['Drivers'][CamCarIdx]['CarNumberRaw']
-        camera_list = []    # Array of TV cameras
-        for i in range(0, len(ir['CameraInfo']['Groups'])):
-            camera_list.append(ir['CameraInfo']['Groups'][i]['GroupName'])
-        changeCamera(activeNumber,camera_list)  # Call the changeCamera function
+        changeCamera()  # Call the changeCamera function
     elif button == "Change Driver":
-        groupNum = ir['CamGroupNumber']
-        drivers_raw = ir['DriverInfo']['Drivers']
-        drivers_list = {}
-        for i in range(0, len(drivers_raw)):
-            if (drivers_raw[i]['IsSpectator'] == 0):
-                drivers_list[drivers_raw[i]['UserName']] = drivers_raw[i]['CarNumber']
-        changeDriver(groupNum,drivers_list)
+        changeDriver()
     elif button == "Change Position":
-        groupNum = ir['CamGroupNumber']
-        activeSession = ir['SessionNum']
-        position_list = []
-        for i in range(0, len(ir['SessionInfo']['Sessions'][activeSession]['ResultsPositions'])):
-            position_list.append(ir['SessionInfo']['Sessions'][activeSession]['ResultsPositions'][i]['Position'])
-        changePosition(groupNum,activeSession,position_list)
+        changePosition()
 
-def changeCamera(activeNumber,camera_list): #Change active camera, driver remains the same
-    choice  = app.getOptionBox("Change Camera") # Pulls choice from the "Change Camera" menu
+def changeCamera(): #Change active camera, driver remains the same
+    CamCarIdx = ir['CamCarIdx']
+    activeNumber = ir['DriverInfo']['Drivers'][CamCarIdx]['CarNumberRaw']
+    camera_list = []    # Array of TV cameras
+    for i in range(0, len(ir['CameraInfo']['Groups'])):
+        camera_list.append(ir['CameraInfo']['Groups'][i]['GroupName'])
+    choice = app.getOptionBox("Change Camera") # Pulls choice from the "Change Camera" menu
     newCamera = camera_list.index(choice)+1
     #print("ir.cam_switch_num(",activeNumber,",",newCamera,",0)")   #Debug
     ir.cam_switch_num(activeNumber, newCamera, 1)
     app.setLabel("lbl-actCam", choice)  # Updates Active TV camera label
 
-def changeDriver(groupNum,drivers_list): #Change active driver, camera remains the same
-    choice  = app.getOptionBox("Change Driver") # Pulls choice from the "Change Driver" menu
+def changeDriver(): #Change active driver, camera remains the same
+    groupNum = ir['CamGroupNumber']
+    activeSession = ir['SessionNum']
+
+    drivers_raw = ir['DriverInfo']['Drivers']
+    drivers_list = {}
+    for i in range(0, len(drivers_raw)):
+        if (drivers_raw[i]['IsSpectator'] == 0):
+            drivers_list[drivers_raw[i]['UserName']] = drivers_raw[i]['CarNumber']
+    choice = app.getOptionBox("Change Driver") # Pulls choice from the "Change Driver" menu
     for name, number in drivers_list.items():  # for name, number in drivers_list
         if name == choice:
             newDriver = number
     #print("ir.cam_switch_num(",newDriver,",",groupNum,", 0)")   #Debug
     ir.cam_switch_num(newDriver, groupNum, 1)
     time.sleep(0.1)
-    activeSession = ir['SessionNum']
     CamCarIdx = ir['CamCarIdx']
     CarIdx = ir['DriverInfo']['Drivers'][CamCarIdx]['CarIdx']
     if (ir['SessionInfo']['Sessions'][activeSession]['ResultsPositions'] == None):
@@ -77,7 +73,12 @@ def changeDriver(groupNum,drivers_list): #Change active driver, camera remains t
         app.setLabel("lbl-actPos", position)  # Updates Position camera label
     app.setLabel("lbl-actDrv", choice)  # Updates Active driver camera label
 
-def changePosition(groupNum,activeSession,position_list): #Change active position
+def changePosition(): #Change active position
+    groupNum = ir['CamGroupNumber']
+    activeSession = ir['SessionNum']
+    position_list = []
+    for i in range(0, len(ir['SessionInfo']['Sessions'][activeSession]['ResultsPositions'])):
+        position_list.append(ir['SessionInfo']['Sessions'][activeSession]['ResultsPositions'][i]['Position'])
     choice  = app.getOptionBox("Change Position") # Pulls choice from the "Change Position" menu
     newCamera = int(groupNum)
     newPosition = int(choice)
