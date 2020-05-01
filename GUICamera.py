@@ -4,11 +4,10 @@ from appJar import gui
 
 ir = irsdk.IRSDK()
 try:
-#    ir.startup()
+    ir.startup()
     # LOCAL DEBUG
-    #ir.startup(test_file='team-endurance.bin')
     #ir.startup(test_file='Scripts\RaceData.bin')
-    while not ir.startup(test_file='Scripts\RaceData.bin'): # This can occur if the sim is not running or fully loaded
+    while not ir.startup(): # This can occur if the sim is not running or fully loaded
         print('iRacing is not running or not fully loaded, sleeping 30 seconds. . . ')
         time.sleep(30)
     else:   # Setup initial variables and lists
@@ -28,7 +27,7 @@ try:
             camera_list.append("Cam: "+ir['CameraInfo']['Groups'][i]['GroupName'])
         # Change Camera: Driver / Team
         drivers_raw = ir['DriverInfo']['Drivers']
-        if (drivers_raw[1]['TeamID'] != 0): # If TeamID of the 1st place car is not 0, then this is a team race.
+        if (ir['WeekendInfo']['TeamRacing'] == 1): # If TeamRacing is 1, then this is a team race.
             team_race = True
         else:
             team_race = False
@@ -54,12 +53,10 @@ except KeyboardInterrupt:
     quit()
 
 def button(button):
-#    if button == "Change Camera":
     if button.startswith('Cam:'):
         changeCamera(button,camera_list)  # Call the changeCamera function
     elif button.startswith('#'):
        changeDriver(button,groupNum,activeSession)
-    #elif button == "Change Position":
     else:
         changePosition(groupNum,activeSession)
 
@@ -75,6 +72,7 @@ def changeCamera(button,camera_list): # Change active camera, driver remains the
 def changeDriver(button,groupNum,activeSession): # Change active driver, camera remains the same
     global team_list
     global driver_list
+    global drivers_raw
     print(button)
     choice = button # Pulls choice from the "Change Driver" menu
     if (team_race == True):
@@ -93,12 +91,13 @@ def changeDriver(button,groupNum,activeSession): # Change active driver, camera 
 #
     time.sleep(1)
     CamCarIdx = ir['CamCarIdx']         # Need to reset this variable to get the new team name and car number
-    activeDriver = ir['DriverInfo']['Drivers'][CamCarIdx]['UserName']
-    activeNumber = ir['DriverInfo']['Drivers'][CamCarIdx]['CarNumberRaw']
+    activeDriver = drivers_raw[CamCarIdx]['UserName']
+    activeNumber = drivers_raw[CamCarIdx]['CarNumberRaw']
     set_position_label(CamCarIdx,activeSession)           # Sets Active position label, depending on session
     app.setLabel("lbl-actDrv", "#"+str(activeNumber) +": "+activeDriver)    # Updates Active driver camera label
 
 def changePosition(groupNum,activeSession): # Change active position
+    global drivers_raw
     choice  = app.getOptionBox("Change Position") # Pulls choice from the "Change Position" menu
     newCamera = int(groupNum)
     newPosition = int(choice)
@@ -106,16 +105,17 @@ def changePosition(groupNum,activeSession): # Change active position
     ir.cam_switch_pos(newPosition,newCamera,0)
     time.sleep(0.1)
     CamCarIdx = ir['CamCarIdx']         # Need to reset this variable to get the new driver name and car number
-    activeDriver = ir['DriverInfo']['Drivers'][CamCarIdx]['UserName']
-    activeNumber = ir['DriverInfo']['Drivers'][CamCarIdx]['CarNumberRaw']
+    activeDriver = drivers_raw[CamCarIdx]['UserName']
+    activeNumber = drivers_raw[CamCarIdx]['CarNumberRaw']
     app.setLabel("lbl-actDrv", "#"+str(activeNumber) +": "+activeDriver)    # Updates Active driver camera label
     app.setLabel("lbl-actPos", choice)                                      # Updates Position camera label
     if (team_race == True):	#If TeamID of the 1st place car is not 0, then this is a team race.
-        activeTeam   = ir['DriverInfo']['Drivers'][CamCarIdx]['TeamName']
+        activeTeam   = drivers_raw[CamCarIdx]['TeamName']
         app.setLabel("lbl-actTeam", "#"+str(activeNumber) +": "+activeTeam)         # Updates Team camera label
 
 def set_position_label(CamCarIdx,activeSession):
-    CarIdx = ir['DriverInfo']['Drivers'][CamCarIdx]['CarIdx']
+    global drivers_raw
+    CarIdx = drivers_raw[CamCarIdx]['CarIdx']
     if (ir['SessionInfo']['Sessions'][activeSession]['ResultsPositions'] == None):
         app.setLabel("lbl-actPos", ["- No Positions At This Time -"])  # Updates Position camera label
     else:
@@ -129,8 +129,41 @@ app.setStretch("both")
 app.setSticky("nesw")
 app.setFont(10)
 
-app.addLabel("lbl-changeDriverText", "Change Driver",0,0,3)  # Active TV camera
+# Change Team/Driver
+app.addLabel("lbl-changeDriverText", "Change Driver",0,0,3)
 app.setLabelBg("lbl-changeDriverText", "green")
+row = 1
+column = 0
+if (team_race == True):
+    for name, number in team_list.items():
+        app.addButton(name, button,row,column)  #print(str(row)+" "+str(column))
+        if(column == 2):    # This is actually the 3rd column in the GUI
+            row += 1
+            column = 0
+        else:
+            column += 1
+else:
+    for name, number in drivers_list.items():  # for name, number in drivers_list
+        app.addButton(name, button,row,column)  #print(str(row)+" "+str(column))
+        if(column == 2):    # This is actually the 3rd column in the GUI
+            row += 1
+            column = 0
+        else:
+            column += 1
+
+# Change TV camera
+app.addLabel("lbl-changeCamText", "Change TV Camera",20,0,3)
+app.setLabelBg("lbl-changeCamText", "green")
+row = 21
+column = 0
+for camera in camera_list:
+    app.addButton(camera, button,row,column)    #print(str(row)+" "+str(column))
+    if(column == 2):    # This is actually the 3rd column in the GUI
+        row += 1
+        column = 0
+    else:
+        column += 1
+
 app.addLabel("lbl-actCamText", "Active TV Camera",0,3,0)  # Active TV camera
 app.setLabelBg("lbl-actCamText", "red")
 app.addLabel("lbl-actCam", ir['CameraInfo']['Groups'][activeCam]['GroupName'],1,3,0)  # Active TV camera
@@ -150,39 +183,6 @@ if (team_race == True):	#If TeamID of the 1st place car is not 0, then this is a
     app.setLabelBg("lbl-actTeamText", "red")
     app.addLabel("lbl-actTeam", "#"+str(activeNumber) +": "+activeTeam,7,3,0)  # Active Team
 
-
-row = 1
-column = 0
-if (team_race == True):	#If TeamID of the 1st place car is not 0, then this is a team race.
-    for name, number in team_list.items():
-        app.addButton(name, button,row,column)
-        #print(str(row)+" "+str(column))
-        if(column == 2):    # This is actually the 3rd column in the GUI
-            row += 1
-            column = 0
-        else:
-            column += 1
-else:
-    for name, number in drivers_list.items():  # for name, number in drivers_list
-        app.addButton(name, button,row,column)
-        #print(str(row)+" "+str(column))
-        if(column == 2):    # This is actually the 3rd column in the GUI
-            row += 1
-            column = 0
-        else:
-            column += 1
-
-app.addLabel("lbl-changeCamText", "Change TV Camera",20,0,3)  # Active TV camera
-app.setLabelBg("lbl-changeCamText", "green")
-row = 21
-column = 0
-for camera in camera_list:
-    app.addButton(camera, button,row,column)
-    #print(str(row)+" "+str(column))
-    if(column == 2):    # This is actually the 3rd column in the GUI
-        row += 1
-        column = 0
-    else:
-        column += 1
-
+app.addLabelOptionBox("Change Position", position_list,8,3,0) # Drop-down menu, array from 'position_list'
+app.addButton("Change Position", button,9,3,0)
 app.go()
