@@ -42,8 +42,8 @@ try:
                 team_list = None
         # Change Camera: Position
         position_list = []
-        if (ir['SessionInfo']['Sessions'][activeSession]['ResultsPositions'] == None):
-            position_list.append("- No Positions At This Time -")
+        while ir['SessionInfo']['Sessions'][activeSession]['ResultsPositions'] == None:
+            position_list.append("None")
         else:
             for i in range(0, len(ir['SessionInfo']['Sessions'][activeSession]['ResultsPositions'])):
                 position_list.append(ir['SessionInfo']['Sessions'][activeSession]['ResultsPositions'][i]['Position'])
@@ -88,7 +88,6 @@ def changeDriver(button,groupNum,activeSession): # Change active driver, camera 
                 newDriver = number
         #print("ir.cam_switch_num(",newDriver,",",groupNum,", 0)")   #Debug
         ir.cam_switch_num(newDriver, groupNum, 1)
-#
     time.sleep(1)
     CamCarIdx = ir['CamCarIdx']         # Need to reset this variable to get the new team name and car number
     activeDriver = drivers_raw[CamCarIdx]['UserName']
@@ -115,10 +114,9 @@ def changePosition(groupNum,activeSession): # Change active position
 
 def set_position_label(CamCarIdx,activeSession):
     global drivers_raw
+    global position_list
     CarIdx = drivers_raw[CamCarIdx]['CarIdx']
-    if (ir['SessionInfo']['Sessions'][activeSession]['ResultsPositions'] == None):
-        app.setLabel("lbl-actPos", ["- No Positions At This Time -"])  # Updates Position camera label
-    else:
+    if (position_list != "None"):
         for i in range(0, len(ir['SessionInfo']['Sessions'][activeSession]['ResultsPositions'])):
             if(ir['SessionInfo']['Sessions'][activeSession]['ResultsPositions'][i]['CarIdx'] == CarIdx):
                 position = ir['SessionInfo']['Sessions'][activeSession]['ResultsPositions'][i]['Position']
@@ -173,7 +171,8 @@ app.addLabel("lbl-actDrv", "#"+str(activeNumber) +": "+activeDriver,3,3,0)  # Ac
 
 app.addLabel("lbl-actPosText", "Active Position",4,3,0)  # Active Position
 app.setLabelBg("lbl-actPosText", "red")
-if (ir['SessionInfo']['Sessions'][activeSession]['ResultsPositions'] == None):
+
+if (position_list == "None"):
     app.addLabel("lbl-actPos", ["- No Positions At This Time -"],5,3,0)  # Active Position
 else:
     app.addLabel("lbl-actPos", ir['SessionInfo']['Sessions'][activeSession]['ResultsPositions'][CamCarIdx]['Position'],5,3,0)  # Active Position
@@ -183,6 +182,7 @@ if (team_race == True):	#If TeamID of the 1st place car is not 0, then this is a
     app.setLabelBg("lbl-actTeamText", "red")
     app.addLabel("lbl-actTeam", "#"+str(activeNumber) +": "+activeTeam,7,3,0)  # Active Team
 
-app.addLabelOptionBox("Change Position", position_list,8,3,0) # Drop-down menu, array from 'position_list'
-app.addButton("Change Position", button,9,3,0)
+if (position_list != "None"):
+    app.addLabelOptionBox("Change Position", position_list,8,3,0) # Drop-down menu, array from 'position_list'
+    app.addButton("Change Position", button,9,3,0)
 app.go()
