@@ -56,9 +56,9 @@ def button(button):
     if button.startswith('Cam:'):
         changeCamera(button,camera_list)  # Call the changeCamera function
     elif button.startswith('#'):
-       changeDriver(button,groupNum,activeSession)
+       changeDriver(button,activeSession)
     else:
-        changePosition(groupNum,activeSession)
+        changePosition(activeSession)
 
 def changeCamera(button,camera_list): # Change active camera, driver remains the same
     choice = button # Pulls choice from the "Change Camera" menu
@@ -69,10 +69,11 @@ def changeCamera(button,camera_list): # Change active camera, driver remains the
     ir.cam_switch_num(activeNumber, newCamera, 1)
     app.setLabel("lbl-actCam", choice)  # Updates Active TV camera label
 
-def changeDriver(button,groupNum,activeSession): # Change active driver, camera remains the same
+def changeDriver(button,activeSession): # Change active driver, camera remains the same
     global team_list
     global driver_list
     global drivers_raw
+    groupNum = ir['CamGroupNumber']
     print(button)
     choice = button # Pulls choice from the "Change Driver" menu
     if (team_race == True):
@@ -95,8 +96,9 @@ def changeDriver(button,groupNum,activeSession): # Change active driver, camera 
     set_position_label(CamCarIdx,activeSession)           # Sets Active position label, depending on session
     app.setLabel("lbl-actDrv", "#"+str(activeNumber) +": "+activeDriver)    # Updates Active driver camera label
 
-def changePosition(groupNum,activeSession): # Change active position
+def changePosition(activeSession): # Change active position
     global drivers_raw
+    groupNum = ir['CamGroupNumber']
     choice  = app.getOptionBox("Change Position") # Pulls choice from the "Change Position" menu
     newCamera = int(groupNum)
     newPosition = int(choice)
