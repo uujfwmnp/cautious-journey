@@ -66,7 +66,7 @@ def changeCamera(button,camera_list): # Change active camera, driver remains the
     CamCarIdx = ir['CamCarIdx']         # Need to reset this variable to get the new team name and car number
     activeNumber = ir['DriverInfo']['Drivers'][CamCarIdx]['CarNumberRaw']
     newCamera = camera_list.index(choice)+1
-    print("ir.cam_switch_num(",activeNumber,",",newCamera,",0)")   #Debug
+    #print("ir.cam_switch_num(",activeNumber,",",newCamera,",0)")   #Debug
     ir.cam_switch_num(activeNumber, newCamera, 1)
     app.setLabel("lbl-actCam", choice)  # Updates Active TV camera label
 
@@ -103,7 +103,7 @@ def changePosition(activeSession): # Change active position
     choice  = app.getOptionBox("Position") # Pulls choice from the "Change Position" menu
     newCamera = int(groupNum)
     newPosition = int(choice)
-    print("ir.cam_switch_pos(",newPosition,",",newCamera,",0)")   #Debug
+    #print("ir.cam_switch_pos(",newPosition,",",newCamera,",0)")   #Debug
     ir.cam_switch_pos(newPosition,newCamera,0)
     time.sleep(0.1)
     CamCarIdx = ir['CamCarIdx']         # Need to reset this variable to get the new driver name and car number
