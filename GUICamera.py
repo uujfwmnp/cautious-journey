@@ -13,6 +13,7 @@ try:
     else:   # Setup initial variables and lists
         # Active Session
         activeSession = ir['SessionNum']
+        sessionInfo = ir['SessionInfo']['Sessions']
         # Active Driver
         CamCarIdx = ir['CamCarIdx']
         activeDriver = ir['DriverInfo']['Drivers'][CamCarIdx]['UserName']
@@ -42,11 +43,11 @@ try:
                 team_list = None
         # Change Camera: Position
         position_list = []
-        while ir['SessionInfo']['Sessions'][activeSession]['ResultsPositions'] == None:
+        while sessionInfo[activeSession]['SessionType'] in ("Practice", "Lone Qualify", "Qualify") and sessionInfo[activeSession]['ResultsPositions'] == None:
             position_list.append("None")
         else:
-            for i in range(0, len(ir['SessionInfo']['Sessions'][activeSession]['ResultsPositions'])):
-                position_list.append(ir['SessionInfo']['Sessions'][activeSession]['ResultsPositions'][i]['Position'])
+            for i in range(0, len(sessionInfo[activeSession]['ResultsPositions'])):
+                position_list.append(sessionInfo[activeSession]['ResultsPositions'][i]['Position'])
 
 except KeyboardInterrupt:
     print('Ending Program\n')
@@ -56,7 +57,7 @@ def button(button):
     if button.startswith('Cam:'):
         changeCamera(button,camera_list)  # Call the changeCamera function
     elif button.startswith('#'):
-       changeDriver(button,activeSession)
+        changeDriver(button,activeSession)
     else:
         changePosition(activeSession)
 
@@ -119,9 +120,9 @@ def set_position_label(CamCarIdx,activeSession):
     global position_list
     CarIdx = drivers_raw[CamCarIdx]['CarIdx']
     if (position_list != "None"):
-        for i in range(0, len(ir['SessionInfo']['Sessions'][activeSession]['ResultsPositions'])):
-            if(ir['SessionInfo']['Sessions'][activeSession]['ResultsPositions'][i]['CarIdx'] == CarIdx):
-                position = ir['SessionInfo']['Sessions'][activeSession]['ResultsPositions'][i]['Position']
+        for i in range(0, len(sessionInfo[activeSession]['ResultsPositions'])):
+            if(sessionInfo[activeSession]['ResultsPositions'][i]['CarIdx'] == CarIdx):
+                position = sessionInfo[activeSession]['ResultsPositions'][i]['Position']
         app.setLabel("lbl-actPos", position)  # Updates Position camera label
 
 app = gui("Camera Director")    #Window name
@@ -178,7 +179,7 @@ app.setLabelBg("lbl-actPosText", "red")
 if (position_list == "None"):
     app.addLabel("lbl-actPos", ["- No Positions At This Time -"],5,3,0)  # Active Position
 else:
-    app.addLabel("lbl-actPos", ir['SessionInfo']['Sessions'][activeSession]['ResultsPositions'][CamCarIdx]['Position'],5,3,0)  # Active Position
+    app.addLabel("lbl-actPos", sessionInfo[activeSession]['ResultsPositions'][CamCarIdx]['Position'],5,3,0)  # Active Position
 
 if (team_race == True):	#If TeamID of the 1st place car is not 0, then this is a team race.
     app.addLabel("lbl-actTeamText", "Active Team",6,3,0)  # Active Team
