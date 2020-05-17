@@ -75,13 +75,12 @@ def changeDriver(button,activeSession): # Change active driver, camera remains t
     global driver_list
     global drivers_raw
     groupNum = ir['CamGroupNumber']
-    print(button)
     choice = button # Pulls choice from the "Change Driver" menu
     if (team_race == True):
         for name, number in team_list.items():  # for name, number in team_list
             if name == choice:
                 changeTeam = number
-        print("ir.cam_switch_num(",changeTeam,",",groupNum,", 0)")  #Debug
+        #print("ir.cam_switch_num(",changeTeam,",",groupNum,", 0)")  #Debug
         ir.cam_switch_num(changeTeam, groupNum, 1)
         app.setLabel("lbl-actTeam", choice)         # Updates Team camera label
     else:
