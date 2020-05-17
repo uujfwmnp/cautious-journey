@@ -152,9 +152,10 @@ else:
             column += 1
 
 # Change TV camera
-app.addLabel("lbl-changeCamText", "Change TV Camera",20,0,3)
+row += 1 # Negate any blank space between the driver and camera rows
+app.addLabel("lbl-changeCamText", "Change TV Camera",row,0,3)
 app.setLabelBg("lbl-changeCamText", "green")
-row = 21
+row += 1
 column = 0
 for camera in camera_list:
     app.addButton(camera, button,row,column)    #print(str(row)+" "+str(column))
