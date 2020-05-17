@@ -100,7 +100,7 @@ def changeDriver(button,activeSession): # Change active driver, camera remains t
 def changePosition(activeSession): # Change active position
     global drivers_raw
     groupNum = ir['CamGroupNumber']
-    choice  = app.getOptionBox("Change Position") # Pulls choice from the "Change Position" menu
+    choice  = app.getOptionBox("Position") # Pulls choice from the "Change Position" menu
     newCamera = int(groupNum)
     newPosition = int(choice)
     print("ir.cam_switch_pos(",newPosition,",",newCamera,",0)")   #Debug
@@ -187,6 +187,8 @@ if (team_race == True):	#If TeamID of the 1st place car is not 0, then this is a
     app.addLabel("lbl-actTeam", "#"+str(activeNumber) +": "+activeTeam,7,3,0)  # Active Team
 
 if (position_list != "None"):
-    app.addLabelOptionBox("Change Position", position_list,8,3,0) # Drop-down menu, array from 'position_list'
-    app.addButton("Change Position", button,9,3,0)
+    app.addLabel("lbl-changePosText", "Change Position",8,3,0)  # Change Position
+    app.setLabelBg("lbl-changePosText", "green")
+    app.addLabelOptionBox("Position", position_list,9,3,0) # Drop-down menu, array from 'position_list'
+    app.addButton("Change Position", button,10,3,0)
 app.go()
